@@ -57,7 +57,9 @@ vector<double> NeuralNetwork::predict(DataInstance instance) {
 
     // BFT implementation goes here.
     //Plan:
-      //1. 
+      //1. make queue of nodes
+      //2. push node into queue
+      //3. 
     // Note: before traversal begins, each input value in `input` must be loaded into
     // the corresponding input node's postActivationValue. Input nodes are not activated —
     // their value is passed forward directly.
@@ -133,7 +135,22 @@ bool NeuralNetwork::update() {
     // weight update: weight = weight - (learningRate * delta)
     // reset the delta term for each node and connection to zero.
     
+    for (auto n : nodes) { //iterate all nodes
+      if (n != nullptr) { //n non null
+        n->bias -= learningRate*n->delta; //subtract loss (very small percent)
+        n->delta = 0; //reset
+      }
+    }
+    //go through adjList
+    for (int v = 0; v < adjacencyList.size(); v++) {
+      for (auto& pair : adjacencyList[v]) {
+        Connection& c = pair.second;
+        c.weight -= learningRate*c.delta;
+        c.delta = 0;
+      }
+    }
     flush();
+
     return true;
     
 }
