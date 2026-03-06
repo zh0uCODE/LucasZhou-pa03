@@ -9,37 +9,37 @@ using namespace std;
 
 // STUDENT TODO: IMPLEMENT
 void NeuralNetwork::eval() {
-    //stub
+    evaluating = true; //true
 }
 
 // STUDENT TODO: IMPLEMENT
 void NeuralNetwork::train() {
-    //stub
+    evaluating = false; //not eval
 }
 
 // STUDENT TODO: IMPLEMENT
 void NeuralNetwork::setLearningRate(double lr) {
-    //stub
+    learningRate = lr; //set learning rate
 }
 
 // STUDENT TODO: IMPLEMENT
 void NeuralNetwork::setInputNodeIds(std::vector<int> inputNodeIds) {
-    //stub
+   this->inputNodeIds = inputNodeIds; //set input node 
 }
 
 // STUDENT TODO: IMPLEMENT
 void NeuralNetwork::setOutputNodeIds(std::vector<int> outputNodeIds) {
-    //stub
+    this->outputNodeIds = outputNodeIds; //set output node
 }
 
 // STUDENT TODO: IMPLEMENT
 vector<int> NeuralNetwork::getInputNodeIds() const {
-    return vector<int>(); //stub
+    return this->inputNodeIds; //get input
 }
 
 // STUDENT TODO: IMPLEMENT
 vector<int> NeuralNetwork::getOutputNodeIds() const {
-    return vector<int>(); //stub
+    return this->outputNodeIds;
 }
 
 // STUDENT TODO: IMPLEMENT
@@ -56,6 +56,8 @@ vector<double> NeuralNetwork::predict(DataInstance instance) {
     }
 
     // BFT implementation goes here.
+    //Plan:
+      //1. 
     // Note: before traversal begins, each input value in `input` must be loaded into
     // the corresponding input node's postActivationValue. Input nodes are not activated —
     // their value is passed forward directly.
