@@ -178,9 +178,12 @@ bool NeuralNetwork::update() {
     // weight update: weight = weight - (learningRate * delta)
     // reset the delta term for each node and connection to zero.
     
-    for (auto n : nodes) { //iterate all nodes
+    for (int i = 0; i < nodes.size(); i++) { //iterate all nodes
+      NodeInfo *n = nodes[i]; //save node info
       if (n != nullptr) { //n non null
-        n->bias -= learningRate*n->delta; //subtract loss (very small percent)
+        if(find(inputNodeIds.begin(),inputNodeIds.end(),i) == inputNodeIds.end()) { //not an input node based on index
+          n->bias -= learningRate*n->delta; //subtract loss (very small percent)
+        }
         n->delta = 0; //reset
       }
     }
