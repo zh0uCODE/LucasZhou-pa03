@@ -57,15 +57,44 @@ vector<double> NeuralNetwork::predict(DataInstance instance) {
 
     // BFT implementation goes here.
     //Plan:
-      //1. make queue of nodes
-      //2. push node into queue
-      //3. 
+      //1. load nodes (post activation value init input)
+    for (int i = 0; i < inputNodeIds.size(); i++) { // for loop 
+      int id = inputNodeIds[i]; //set index 
+      nodes[id]->postActivationValue = input[i]; //load input values into input nodes array 
+    }
+      //2. load edges
+    vector<int> incoming(nodes.size(), 0); //initalize incoming 
+    for (int i = 0; i < adjacencyList.size(); i++) { //go through adjList
+      for (auto& p : adjacencyList[i]) { //for every pair
+	incoming[p.second.dest]++; //add one to edges received
+      }
+    }
+      //3. do the bfs algo
+    queue<int> node_queue; //init queue
+    for (int n : inputNodeIds) { //go through inputs
+      node_queue.push(n); //push input node ids
+    }
+    while(!node_queue.empty()) { //not empty
+      int u = node_queue.front(); //save front
+      node_queue.pop(); //pop front
+      if (find(inputNodeIds.begin(), inputNodeIds.end(), u) == inputNodeIds.end()) { //current node not an input
+        visitPredictNode(u); //activate node
+      }
+      for (auto& p : adjacencyList[u]) { //for every pair in the current unordered map 
+        Connection c = p.second; //track every connection
+        visitPredictNeighbor(c); //activate neighbor (connection)
+        incoming[c.dest]--; //if u activate an incoming edge, then.... minus one (done)
+        if (incoming[c.dest] == 0) { //every connection activated?
+          node_queue.push(c.dest); //push neighbors
+        }
+      }
+    }
     // Note: before traversal begins, each input value in `input` must be loaded into
     // the corresponding input node's postActivationValue. Input nodes are not activated —
     // their value is passed forward directly.
     // Use visitPredictNode and visitPredictNeighbor to handle the neural network math
     // at each step of your traversal.
-
+    
     vector<double> output;
     for (int i = 0; i < outputNodeIds.size(); i++) {
         int dest = outputNodeIds.at(i);
@@ -94,9 +123,11 @@ bool NeuralNetwork::contribute(double y, double p) {
     // The contributions map acts as your "visited" set and also stores each node's
     // computed contribution so it is not recomputed if reached by multiple paths.
 
-
-    flush();
-
+    contributions.clear(); //clear contributions
+    for (int id : inputNodeIds) { //iterate
+      contribute(id,y,p); //call helper
+    }
+    
     return true;
 }
 // STUDENT TODO: IMPLEMENT
@@ -110,17 +141,29 @@ double NeuralNetwork::contribute(int nodeId, const double& y, const double& p) {
     NodeInfo* currNode = nodes.at(nodeId);
 
     // If this node is already in the contributions map, return its stored value immediately.
-
+    if (contributions.find(nodeId) != contributions.end()) { //found node in the contributions map
+      return contributions[nodeId]; //return value based on nodeId (no duplicate)
+    }
     if (adjacencyList.at(nodeId).empty()) {
         // Base case: output node (no outgoing connections).
         // Seeds the backward pass with the initial error signal.
         // You do not need to understand this derivation.
         outgoingContribution = -1 * ((y - p) / (p * (1 - p)));
+    } else { //dft
+      for (auto& pair : adjacencyList[nodeId]) { //go through all the pairs in unordered map
+        Connection c = pair.second; //connection save
+        int neighbor = c.dest; //neighbor
+        incomingContribution = contribute(neighbor,y,p); //recursive call contribute on neighbor
+        visitContributeNeighbor(c, incomingContribution, outgoingContribution); // calculate connection
+      }
+    }
+    if (find(inputNodeIds.begin(), inputNodeIds.end(), nodeId) == inputNodeIds.end()) { //current node not an input
+        visitContributeNode(nodeId, outgoingContribution); //activate node
     }
 
     // Before returning, store outgoingContribution in the contributions map.
-
-    return outgoingContribution;
+    contributions[nodeId] = outgoingContribution; //prevent duplicates
+    return outgoingContribution; //then return
 }
 // STUDENT TODO: IMPLEMENT
 bool NeuralNetwork::update() {
