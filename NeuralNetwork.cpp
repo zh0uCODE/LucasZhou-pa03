@@ -151,7 +151,7 @@ double NeuralNetwork::contribute(int nodeId, const double& y, const double& p) {
         outgoingContribution = -1 * ((y - p) / (p * (1 - p)));
     } else { //dft
       for (auto& pair : adjacencyList[nodeId]) { //go through all the pairs in unordered map
-        Connection c = pair.second; //connection save
+        Connection& c = pair.second; //connection save
         int neighbor = c.dest; //neighbor
         incomingContribution = contribute(neighbor,y,p); //recursive call contribute on neighbor
         visitContributeNeighbor(c, incomingContribution, outgoingContribution); // calculate connection
