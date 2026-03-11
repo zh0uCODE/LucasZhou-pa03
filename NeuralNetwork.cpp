@@ -54,7 +54,13 @@ vector<double> NeuralNetwork::predict(DataInstance instance) {
         cerr << "\tBut got: " << input.size() << endl;
         return vector<double>();
     }
-
+    //non input nodes: reset pre/post activation vals
+    for (int i = 0; i < nodes.size(); i++) { //iterate
+      if (find(inputNodeIds.begin(), inputNodeIds.end(), i) == inputNodeIds.end()) {
+        nodes[i]->preActivationValue = 0; //init zero
+        nodes[i]->postActivationValue = 0; //init zero
+      }
+    } 
     // BFT implementation goes here.
     //Plan:
       //1. load nodes (post activation value init input)
@@ -272,6 +278,7 @@ void NeuralNetwork::loadNetwork(istream& in) {
     }
 
     // resize network to accomodate expected nodes.
+
     resize(totalNodes);
     this->size = totalNodes;
 
